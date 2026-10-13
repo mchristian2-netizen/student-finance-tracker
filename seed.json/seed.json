@@ -1,0 +1,14 @@
+{
+  "records": [
+    { "id": "rec_0001", "description": "Lunch at cafeteria", "amount": "12.50", "category": "Food", "date": "2025-09-29", "createdAt": "2025-09-29T10:00:00Z", "updatedAt": "2025-09-29T10:00:00Z" },
+    { "id": "rec_0002", "description": "Calculus Textbook", "amount": "85.00", "category": "Books", "date": "2025-09-28", "createdAt": "2025-09-28T14:30:00Z", "updatedAt": "2025-09-28T14:30:00Z" },
+    { "id": "rec_0003", "description": "Bus pass", "amount": "25.00", "category": "Transport", "date": "2025-09-27", "createdAt": "2025-09-27T08:15:00Z", "updatedAt": "2025-09-27T08:15:00Z" }
+  ],
+  "settings": {
+    "baseCurrency": "USD",
+    "alt1Code": "EUR", "alt1Rate": "0.92",
+    "alt2Code": "GBP", "alt2Rate": "0.79",
+    "categories": "Food, Books, Transport, Entertainment, Fees, Other",
+    "cap": "200"
+  }
+}

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Regex & Validator Tests</title>
+  <style>
+    body { font-family: monospace; padding: 2rem; background: #f8f9fa; color: #1a1a1a; }
+    .pass { color: green; font-weight: bold; } 
+    .fail { color: red; font-weight: bold; }
+    h1 { border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; }
+    h2 { color: #0056b3; }
+    code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Test Results</h1>
+  <div id="results"></div>
+
+  <script>
+    // =========================================
+    // STANDALONE TEST SCRIPT (No imports needed)
+    // =========================================
+
+    // 1. Validation Logic (from validators.js)
+    const validators = {
+      description: (val) => {
+        if (!/^(?=.*[A-Za-z])\S(?:.*\S)?$/.test(val)) return "Must contain a letter, no leading/trailing spaces.";
+        if (/\s{2,}/.test(val)) return "No double spaces allowed.";
+        if (/\b([A-Za-z]{2,})\s+\1\b/i.test(val)) return "Duplicate word detected.";
+        return null;
+      },
+      amount: (val) => {
+        if (!/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(val)) return "Must be a positive number with up to 2 decimals.";
+        return null;
+      },
+      date: (val) => {
+        if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(val)) return "Invalid date format.";
+        return null;
+      },
+      category: (val) => {
+        if (!/^[A-Za-z]+(?:[ -][A-Za-z]+)*$/.test(val)) return "Letters, spaces, hyphens only.";
+        return null;
+      },
+      currency: (val) => {
+        if (!/^[A-Z]{3}$/.test(val)) return "Must be 3 uppercase letters.";
+        return null;
+      }
+    };
+
+    // 2. Search Logic (from search.js)
+    const search = {
+      compile: (pattern, caseInsensitive = true) => {
+        try { return new RegExp(pattern, caseInsensitive ? 'gi' : 'g'); } 
+        catch (e) { throw new Error(`Invalid regex: ${e.message}`); }
+      },
+      highlight: (text, regex) => {
+        if (!regex) return text;
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return escaped.replace(regex, match => `<mark>${match}</mark>`);
+      }
+    };
+
+    // 3. Test Runner
+    const results = document.getElementById('results');
+    let passed = 0, total = 0;
+
+    function assert(name, condition) {
+      total++;
+      const p = document.createElement('p');
+      if (condition) { p.textContent = `✅ PASS: ${name}`; p.className = 'pass'; passed++; }
+      else { p.textContent = `❌ FAIL: ${name}`; p.className = 'fail'; }
+      results.appendChild(p);
+    }
+
+    // --- Validator Tests ---
+    assert('Valid description', validators.description('Lunch at cafeteria') === null);
+    assert('Description with leading space fails', validators.description(' Lunch') !== null);
+    assert('Description with double space fails', validators.description('Lunch  cafeteria') !== null);
+    assert('Description with duplicate word fails', validators.description('the the') !== null);
+    assert('Valid amount', validators.amount('12.50') === null);
+    assert('Invalid amount (3 decimals) fails', validators.amount('12.505') !== null);
+    assert('Valid date', validators.date('2025-09-29') === null);
+    assert('Invalid date (month 13) fails', validators.date('2025-13-01') !== null);
+    assert('Valid category', validators.category('Food') === null);
+    assert('Invalid category (numbers) fails', validators.category('Food1') !== null);
+    assert('Valid currency code', validators.currency('USD') === null);
+    assert('Invalid currency code fails', validators.currency('usd') !== null);
+
+    // --- Search & Highlight Tests ---
+    const regex = search.compile('coffee', true);
+    assert('Search compiles', regex instanceof RegExp);
+    assert('Highlight wraps match', search.highlight('I bought coffee', regex) === 'I bought <mark>coffee</mark>');
+    assert('Safe regex throws on bad pattern', (() => { try { search.compile('['); return false; } catch { return true; } })());
+
+    // Summary
+    const summary = document.createElement('h2');
+    summary.textContent = `${passed} / ${total} tests passed.`;
+    summary.style.color = passed === total ? 'green' : 'red';
+    document.body.insertBefore(summary, results);
+  </script>
+</body>
+</html>

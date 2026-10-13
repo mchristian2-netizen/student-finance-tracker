@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Finance Tracker</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <p id="global-status" class="status status--global" role="status" aria-live="polite"></p>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <p class="brand"><span class="brand-mark" aria-hidden="true">$</span><span class="brand-name">Student Finance Tracker</span></p>
+      <nav class="site-nav" aria-label="Primary">
+        <ul>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#records">Records</a></li>
+          <li><a href="#editor">Add / Edit</a></li>
+          <li><a href="#settings">Settings</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <section id="dashboard" class="panel" aria-labelledby="dashboard-h">
+      <h2 id="dashboard-h">Dashboard</h2>
+      <div class="dash-grid">
+        <div class="stats" id="stats" aria-label="Summary statistics"></div>
+        <div class="cap">
+          <h3>Budget cap</h3>
+          <p id="cap-status" class="cap-status" role="status" aria-live="polite">No cap set.</p>
+          <p id="cap-alert" class="cap-alert" role="alert" hidden></p>
+          <div class="meter" aria-hidden="true"><span id="cap-bar"></span></div>
+        </div>
+        <div class="trend">
+          <h3 id="trend-h">Last 7 days</h3>
+          <ul class="chart" id="chart" aria-labelledby="trend-h"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="records" class="panel" aria-labelledby="records-h">
+      <h2 id="records-h">Records</h2>
+      <form id="search-form" class="toolbar" role="search" aria-label="Search and sort records">
+        <div class="field field--grow">
+          <label for="q">Search </label>
+          <input id="q" name="q" type="search" autocomplete="off" spellcheck="false" placeholder="coffee|tea   ·   \.(\d{2})\b   ·   ^Food" />
+        </div>
+        <div class="toggles">
+          <label><input type="checkbox" id="regex-mode" checked /> Regex</label>
+          <label><input type="checkbox" id="case-insensitive" checked /> Ignore case</label>
+        </div>
+        <div class="field">
+          <label for="sort-key">Sort by</label>
+          <select id="sort-key">
+            <option value="date">Date</option>
+            <option value="description">Description (A–Z)</option>
+            <option value="category">Category</option>
+            <option value="amount">Amount</option>
+          </select>
+        </div>
+        <button type="button" id="sort-dir" class="btn btn-ghost">Descending ↓</button>
+        <button type="button" id="reset-search" class="btn btn-ghost">Clear</button>
+      </form>
+      <p id="search-error" class="error" role="alert" hidden></p>
+      <p id="search-status" class="status" role="status" aria-live="polite"></p>
+
+      <div class="records-table-wrap" id="table-wrap">
+        <table class="records">
+          <caption class="sr-only">All saved transactions.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Category</th>
+              <th scope="col" class="num">Amount</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
+      </div>
+      <ul class="records-cards" id="records-cards" aria-label="All saved transactions"></ul>
+      <div id="empty-state" class="empty" hidden>
+        <p>No records to show.</p>
+      </div>
+    </section>
+
+    <section id="editor" class="panel" aria-labelledby="editor-h">
+      <h2 id="editor-h">Add a record</h2>
+      <form id="record-form" class="editor-grid" novalidate>
+        <input type="hidden" id="record-id" />
+        <div class="field field--full">
+          <label for="description">Description</label>
+          <input id="description" name="description" type="text" autocomplete="off" aria-describedby="description-error" required />
+          <p class="error" id="description-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="amount">Amount (<span data-currency-label>USD</span>)</label>
+          <input id="amount" name="amount" type="text" inputmode="decimal" aria-describedby="amount-error" required />
+          <p class="error" id="amount-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="category">Category</label>
+          <input id="category" name="category" type="text" list="category-options" autocomplete="off" aria-describedby="category-error" required />
+          <datalist id="category-options"></datalist>
+          <p class="error" id="category-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" name="date" type="date" aria-describedby="date-error" required />
+          <p class="error" id="date-error" role="alert" hidden></p>
+        </div>
+        <div class="form-actions field--full">
+          <button type="submit" class="btn btn-primary" id="submit-btn">Add record</button>
+          <button type="button" class="btn btn-ghost" id="cancel-edit" hidden>Cancel edit</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="settings" class="panel" aria-labelledby="settings-h">
+      <h2 id="settings-h">Settings</h2>
+      <form id="settings-form" novalidate>
+        <fieldset>
+          <legend>Currencies</legend>
+          <div class="field">
+            <label for="base-currency">Base currency code</label>
+            <input id="base-currency" maxlength="3" autocomplete="off" aria-describedby="base-currency-error" />
+            <p class="error" id="base-currency-error" role="alert" hidden></p>
+          </div>
+          <div class="field">
+            <label for="alt1-code">Second currency</label>
+            <input id="alt1-code" maxlength="3" autocomplete="off" />
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Categories &amp; cap</legend>
+          <div class="field">
+            <label for="categories">Categories (comma separated)</label>
+            <input id="categories" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="cap">Spending cap (<span data-currency-label>USD</span>)</label>
+            <input id="cap" inputmode="decimal" autocomplete="off" />
+          </div>
+        </fieldset>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save settings</button>
+        </div>
+        <p id="settings-status" class="status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="data-tools">
+        <h3>Data</h3>
+        <div class="button-row">
+          <button class="btn" type="button" id="export-btn">Export JSON</button>
+          <button class="btn" type="button" id="import-btn">Import JSON</button>
+          <button class="btn btn-danger" type="button" id="clear-btn">Delete all records</button>
+        </div>
+        <input type="file" id="import-file" accept="application/json,.json" class="sr-only" />
+      </div>
+    </section>
+
+    <section id="about" class="panel" aria-labelledby="about-h">
+      <h2 id="about-h">About</h2>
+      <p>Student Finance Tracker is a small, offline-first tool for logging day-to-day spending.</p>
+      <h3>Contact</h3>
+      <ul class="contact">
+        <li>GitHub: <a href="https://github.com/mchristian2-netizen">@mchristian2-netizen</a></li>
+        <li>Email: <a href="mailto:m.christian2@alustudent.com">m.christian2@alustudent.com</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap"></div>
+  </footer>
+
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
