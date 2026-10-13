@@ -1,6 +1,6 @@
 # Student Finance Tracker
 
-An accessible, responsive, vanilla HTML/CSS/JS application for tracking student spending. Built as a summative assignment for the ALU ICT Mentorship program.
+An accessible, responsive, HTML/CSS/JS application for tracking student spending. Built as a summative assignment.
 
 **Author:** mchristian2-netizen  
 **Contact:** m.christian2@alustudent.com
